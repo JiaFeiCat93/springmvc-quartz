@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+  	
+  	<bean id="scheduler" class="com.qetch.springmvc.task.quartz.SchedulerFactoryBeanWithShutdownDelay">
+  		<property name="configLocation" value="classpath:quartz.properties"/>
+  		<property name="startupDelay" value="30"/>
+  		<property name="applicationContextSchedulerContextKey" value="applicationContext"/>
+  		<property name="overwriteExistingJobs" value="true"/>
+  		<property name="autoStartup" value="true"/>
+  		<property name="triggers">
+  			<list>
+  				<ref bean="firstTrigger"/>
+  				<ref bean="secondTrigger"/>
+  			</list>
+  		</property>
+  	</bean>
+  	
+  	<bean id="firstTask" class="com.qetch.springmvc.task.FirstTask"/>
+  	<bean id="secondTask" class="com.qetch.springmvc.task.SecondTask"/>
+  	
+  	<bean id="firstTargetJob" class="com.qetch.springmvc.task.quartz.BootstrapJob">
+  		<property name="targetJob" ref="firstTask"/>
+  	</bean>
+  	<bean id="secondTargetJob" class="com.qetch.springmvc.task.quartz.BootstrapJob">
+  		<property name="targetJob" ref="secondTask"/>
+  	</bean>
+  	
+    <bean id="firstMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    	<property name="targetObject" ref="firstTargetJob"/>
+    	<property name="targetMethod" value="executeInternal"/>
+    	<property name="concurrent" value="false"/>
+    </bean>
+    <bean id="secondMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    	<property name="targetObject" ref="secondTargetJob"/>
+    	<property name="targetMethod" value="executeInternal"/>
+    	<property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="firstTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+    	<property name="jobDetail" ref="firstMethod"/>
+    	<property name="cronExpression" ref="0 0/1 * * * ?"/>
+    </bean>
+    <bean id="secondTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+    	<property name="jobDetail" ref="secondMethod"/>
+    	<property name="cronExpression" ref="0 0/2 * * * ?"/>
+    </bean>
+    
+</beans>

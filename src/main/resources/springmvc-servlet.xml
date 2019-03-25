@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" 
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context-4.0.xsd 
+    http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+	<context:component-scan base-package="com.qetch.springmvc.controller"/>
+	<context:component-scan base-package="com.qetch.springmvc.service"/>
+	
+	<mvc:annotation-driven conversion-service="conversionService"/>
+	
+	<!-- 如何配置来访问静态资源文件，如css，js等文件资源 -->
+	<!-- 
+		1.在MVC配置文件中添加资源文件映射
+		mapping：映射     
+		location：本地资源路径，注意必须是webapp根目录下的路径。          
+				    两个*，它表示映射resources/下所有的URL，包括子路径（即接多个/）
+		配置的location一定要是web-app根目录下才行，如果你将资源目录，放置到web-app/WEB-INF下面的话，恭喜你，访问失败！404 NOT FOUND
+	 -->
+	<mvc:resources location="/WEB-INF/css/" mapping="/css/**"/>
+	
+	<!-- 
+		2.全部使用默认的
+		<mvc:default-servlet-handler/>
+	 -->
+	 
+	<!-- 
+		3.直接在web.xml文件中进行配置
+		<servlet-mapping>
+    		<servlet-name>default</servlet-name>
+    		<url-pattern>*.css</url-pattern>
+  		</servlet-mapping>
+  		等
+	 -->
+	
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"/>
+		<property name="suffix" value=".jsp"/>
+	</bean>
+	
+	<bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<!-- 第一种方式： -->
+		<!-- <property name="formatters">
+			<set>
+				<bean class="com.qetch.springmvc.formatter.DateFormatter">
+					<constructor-arg type="java.lang.String" value="MM-dd-yyyy"/>
+				</bean>
+			</set>
+		</property> -->
+		
+		<!-- 第二种方式： -->
+		<property name="formatterRegistrars">
+			<set>
+				<bean class="com.qetch.springmvc.formatter.MyFormatterRegistrar">
+					<constructor-arg type="java.lang.String" value="MM-dd-yyyy"/>
+				</bean>			
+			</set>
+		</property>
+	</bean>
+	
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<!-- 项目中只有一个配置文件 -->
+		<property name="basename" value="classpath:messages"/>
+		<property name="defaultEncoding" value="UTF-8"/>
+		<!-- 项目中多有个配置文件 -->
+		<!-- <property name="basenames">
+			<list>
+				<value>classpath:messages</value>
+			</list>
+		</property> -->
+	</bean>
+	
+</beans>
