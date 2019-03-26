@@ -11,15 +11,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.qetch.springmvc.common.Constants;
 import com.qetch.springmvc.task.quartz.ExtJob;
 
+@Component
 public class SecondTask implements ExtJob {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(SecondTask.class); 
@@ -43,10 +45,10 @@ public class SecondTask implements ExtJob {
 		Collection<Callable<Map<String, Long>>> tasks = 
 				Collections2.transform(wxcidSet, new Function<String, Callable<Map<String, Long>>>() {
 
-			@Override
-			public Callable<Map<String, Long>> apply(String wxcid) {
-				return toCallable(wxcid);
-			}
+					@Override
+					public Callable<Map<String, Long>> apply(String wxcid) {
+						return toCallable(wxcid);
+					}
 		});
 		
 		int size = wxcidSet.size();
